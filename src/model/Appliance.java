@@ -35,6 +35,20 @@ public class Appliance implements Serializable {
         return cost * quantity;
     }
 
+     // Method to get Material details for print preview
+     public String getMaterialDetails() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < materials.getSize(); i++) {
+            Material material = materials.getElementAt(i);
+            sb.append(name).append(", ")
+              .append(material.getName()).append(", ")
+              .append(quantity).append(", ")
+              .append(material.getCost()).append(", ")
+              .append(getTotalCost()).append("\n");
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return name + " (Qty: " + quantity + "), Total Cost: $" + getTotalCost();

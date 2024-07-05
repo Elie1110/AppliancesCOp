@@ -17,7 +17,7 @@ public class FinancialPanel extends JPanel {
     private AppliancesPanel appliancesPanel;
     private ExtraCostPanel extraCostPanel;
 
-    public FinancialPanel(EmployeesPanel employeesPanel, AppliancesPanel appliancesPanel, ExtraCostPanel extraCostPanel) {
+    public FinancialPanel(MaterialsPanel materialsPanel, EmployeesPanel employeesPanel, AppliancesPanel appliancesPanel, ExtraCostPanel extraCostPanel) {
         this.employeesPanel = employeesPanel;
         this.appliancesPanel = appliancesPanel;
         this.extraCostPanel = extraCostPanel;
@@ -28,37 +28,46 @@ public class FinancialPanel extends JPanel {
         financialDetailsArea.setEditable(false);
         add(new JScrollPane(financialDetailsArea), BorderLayout.CENTER);
 
+        createButtonPanel();
+    }
+
+    private void createButtonPanel() {
         JPanel buttonPanel = new JPanel();
         calculateButton = new JButton("Calculate");
         openFormButton = new JButton("Open Form");
         saveButton = new JButton("Save Data");
+        buttonPanel.add(new JLabel("To Display the Profit and Loss:"));
 
         buttonPanel.add(calculateButton);
         buttonPanel.add(openFormButton);
         buttonPanel.add(saveButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.NORTH);
 
-        calculateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateFinancials();
-            }
-        });
+        calculateButton.addActionListener(new CalculateButtonListener());
+        openFormButton.addActionListener(new OpenFormButtonListener());
+        saveButton.addActionListener(new SaveButtonListener());
+    }
 
-        openFormButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openForm();
-            }
-        });
+    private class CalculateButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            calculateFinancials();
+        }
+    }
 
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveData();
-            }
-        });
+    private class OpenFormButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openForm();
+        }
+    }
+
+    private class SaveButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            saveData();
+        }
     }
 
     private void calculateFinancials() {
@@ -104,4 +113,3 @@ public class FinancialPanel extends JPanel {
         }
     }
 }
-   

@@ -5,13 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collection;
-
 import javax.swing.DefaultListModel;
-
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import model.Appliance;
 import model.Employee;
@@ -50,24 +44,6 @@ public class SaveData {
                 extraCosts.addElement(extraCost);
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static void generateProjectForm(String projectName, String projectDetails) {
-        try (FileOutputStream fos = new FileOutputStream("C:\\Users\\USER\\Desktop\\java project form\\" + projectName + ".docx");
-             XWPFDocument document = new XWPFDocument()) {
-            // Create document content
-            XWPFParagraph paragraph = document.createParagraph();
-            XWPFRun run = paragraph.createRun();
-            run.setText("Project Name: " + projectName);
-            run.addBreak();
-            run.setText("Project Details:\n" + projectDetails);
-
-            // Write document content to the file
-            document.write(fos);
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }

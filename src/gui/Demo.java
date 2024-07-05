@@ -1,14 +1,11 @@
 package gui;
 
 import javax.swing.*;
-
 import model.Appliance;
 import model.Employee;
 import model.ExtraCost;
 import model.Material;
-
 import java.awt.BorderLayout;
-import java.util.Random;
 
 public class Demo {
     public static void main(String[] args) {
@@ -21,7 +18,7 @@ public class Demo {
 
             MaterialsPanel materialsPanel = new MaterialsPanel();
             EmployeesPanel employeesPanel = new EmployeesPanel();
-            AppliancesPanel appliancesPanel = new AppliancesPanel(materialsPanel);
+            AppliancesPanel appliancesPanel = new AppliancesPanel(materialsPanel.getMaterialListModel());
             ExtraCostPanel extraCostPanel = new ExtraCostPanel();
             FinancialPanel financialPanel = new FinancialPanel(materialsPanel, employeesPanel, appliancesPanel, extraCostPanel);
 
@@ -40,8 +37,6 @@ public class Demo {
     }
 
     private static void addRandomData(MaterialsPanel materialsPanel, EmployeesPanel employeesPanel, AppliancesPanel appliancesPanel, ExtraCostPanel extraCostPanel) {
-        Random random = new Random();
-
         // Adding materials
         materialsPanel.getMaterialListModel().addElement(new Material("Wood", 10.0));
         materialsPanel.getMaterialListModel().addElement(new Material("Metal", 12.0));

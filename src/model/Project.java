@@ -8,6 +8,11 @@ public class Project implements Serializable {
     private String projectName;
     private String projectDetails;
 
+    public Project(String projectName) {
+        this.projectName = projectName;
+        this.projectDetails = "";
+    }
+
     public Project(String projectName, String projectDetails) {
         this.projectName = projectName;
         this.projectDetails = projectDetails;
@@ -31,6 +36,6 @@ public class Project implements Serializable {
 
     @Override
     public String toString() {
-        return "Project Name: " + projectName + "\nProject Details: " + projectDetails;
+        return projectName;
     }
 }

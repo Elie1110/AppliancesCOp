@@ -2,7 +2,6 @@ package model;
 
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.SwingUtilities;
 
 import gui.AppliancesPanel;
 import gui.EmployeesPanel;
@@ -21,7 +20,7 @@ public class Main {
 
             MaterialsPanel materialsPanel = new MaterialsPanel();
             EmployeesPanel employeesPanel = new EmployeesPanel();
-            AppliancesPanel appliancesPanel = new AppliancesPanel(materialsPanel);
+            AppliancesPanel appliancesPanel = new AppliancesPanel(materialsPanel.getMaterialListModel());
             ExtraCostPanel extraCostPanel = new ExtraCostPanel();
             FinancialPanel financialPanel = new FinancialPanel(materialsPanel, employeesPanel, appliancesPanel, extraCostPanel);
 

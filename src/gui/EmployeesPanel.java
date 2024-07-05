@@ -7,26 +7,43 @@ import model.Employee;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EmployeesPanel extends JPanel {
     private DefaultListModel<Employee> employeeListModel;
     private JList<Employee> employeeList;
     private JTextField nameField, hoursField;
     private JComboBox<String> departmentComboBox;
+    private Map<String, Double> salaryPerHourMap;
 
     public EmployeesPanel() {
         setLayout(new BorderLayout());
 
         employeeListModel = new DefaultListModel<>();
         employeeList = new JList<>(employeeListModel);
-        add(new JScrollPane(employeeList), BorderLayout.CENTER);
+        add(new JScrollPane(employeeList), BorderLayout.SOUTH);
 
+        initializeSalaryPerHourMap();
+        createInputPanel();
+        createButtonPanel();
+    }
+
+    private void initializeSalaryPerHourMap() {
+        salaryPerHourMap = new HashMap<>();
+        salaryPerHourMap.put("HR", 10.0);
+        salaryPerHourMap.put("Cleaners", 4.0);
+        salaryPerHourMap.put("IT", 8.0);
+        salaryPerHourMap.put("Production", 7.0);
+    }
+
+    private void createInputPanel() {
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(3, 2));
+        inputPanel.setLayout(new GridLayout(8, 3, 50,20));
 
         nameField = new JTextField();
         hoursField = new JTextField();
-        departmentComboBox = new JComboBox<>(new String[]{"HR", "Cleaners", "IT", "Production"});
+        departmentComboBox = new JComboBox<>(salaryPerHourMap.keySet().toArray(new String[0]));
 
         inputPanel.add(new JLabel("Employee Name:"));
         inputPanel.add(nameField);
@@ -34,67 +51,69 @@ public class EmployeesPanel extends JPanel {
         inputPanel.add(hoursField);
         inputPanel.add(new JLabel("Department:"));
         inputPanel.add(departmentComboBox);
+        inputPanel.add(new JLabel("To add a new employee, enter their name, hours worked, and department, then click \"Add New Employee\"."));
+        inputPanel.add(new JLabel("The employee's salary will be computed and shown in the list below."));
+        add(inputPanel, BorderLayout.CENTER);
+    }
 
-        add(inputPanel, BorderLayout.NORTH);
-
+    private void createButtonPanel() {
         JPanel buttonPanel = new JPanel();
-        JButton addButton = new JButton("Add Employee");
+        JButton addButton = new JButton("Add New Employee");
         JButton deleteButton = new JButton("Delete Employee");
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.NORTH);
 
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText();
-                int hoursWorked;
-                try {
-                    hoursWorked = Integer.parseInt(hoursField.getText());
-                    if (hoursWorked < 0) {
-                        JOptionPane.showMessageDialog(EmployeesPanel.this, "Hours worked must be positive.");
-                        return;
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(EmployeesPanel.this, "Invalid hours worked.");
-                    return;
-                }
-                String department = (String) departmentComboBox.getSelectedItem();
-                double salaryPerHour = getSalaryPerHour(department);
-                double salary = salaryPerHour * hoursWorked;
-                employeeListModel.addElement(new Employee(name, department, hoursWorked, salary));
-                nameField.setText("");
-                hoursField.setText("");
-                departmentComboBox.setSelectedIndex(0);
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Employee selectedEmployee = employeeList.getSelectedValue();
-                if (selectedEmployee != null) {
-                    employeeListModel.removeElement(selectedEmployee);
-                }
-            }
-        });
+        addButton.addActionListener(new AddButtonListener());
+        deleteButton.addActionListener(new DeleteButtonListener());
     }
 
-    private double getSalaryPerHour(String department) {
-        switch (department) {
-            case "HR":
-                return 10.0;
-            case "Cleaners":
-                return 4.0;
-            case "IT":
-                return 8.0;
-            case "Production":
-                return 7.0;
-            default:
-                return 0.0;
+    private class AddButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String name = nameField.getText();
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(EmployeesPanel.this, "Employee name cannot be empty.");
+                return;
+            }
+
+            int hoursWorked;
+            try {
+                hoursWorked = Integer.parseInt(hoursField.getText());
+                if (hoursWorked < 0) {
+                    JOptionPane.showMessageDialog(EmployeesPanel.this, "Hours worked must be positive.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(EmployeesPanel.this, "Invalid hours worked.");
+                return;
+            }
+
+            String department = (String) departmentComboBox.getSelectedItem();
+            double salaryPerHour = salaryPerHourMap.getOrDefault(department, 0.0);
+            double salary = salaryPerHour * hoursWorked;
+
+            employeeListModel.addElement(new Employee(name, department, hoursWorked, salary));
+            clearInputFields();
         }
+    }
+
+    private class DeleteButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Employee selectedEmployee = employeeList.getSelectedValue();
+            if (selectedEmployee != null) {
+                employeeListModel.removeElement(selectedEmployee);
+            }
+        }
+    }
+
+    private void clearInputFields() {
+        nameField.setText("");
+        hoursField.setText("");
+        departmentComboBox.setSelectedIndex(0);
     }
 
     public DefaultListModel<Employee> getEmployeeListModel() {
