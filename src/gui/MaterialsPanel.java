@@ -1,12 +1,11 @@
 package gui;
 
 import javax.swing.*;
-
-import model.Material;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import model.Material;
+import model.Project;
 
 public class MaterialsPanel extends JPanel {
     private DefaultListModel<Material> materialListModel;
@@ -18,10 +17,10 @@ public class MaterialsPanel extends JPanel {
 
         materialListModel = new DefaultListModel<>();
         materialList = new JList<>(materialListModel);
-        add(new JScrollPane(materialList), BorderLayout.SOUTH);
+        add(new JScrollPane(materialList), BorderLayout.CENTER);
 
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(6, 3, 50, 20));
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         nameField = new JTextField();
         costField = new JTextField();
@@ -30,75 +29,78 @@ public class MaterialsPanel extends JPanel {
         inputPanel.add(nameField);
         inputPanel.add(new JLabel("Cost/Unit:"));
         inputPanel.add(costField);
-        inputPanel.add(new JLabel("To add new materials, enter the name and cost in dollars, then click \"Add New Material\". The material will appear in the list below."));
 
-        add(inputPanel, BorderLayout.CENTER);
-
-        JPanel buttonPanel = new JPanel();
         JButton addButton = new JButton("Add New Material");
-        JButton deleteButton = new JButton("Delete Material");
-
-        buttonPanel.add(addButton);
-        buttonPanel.add(deleteButton);
-
-        add(buttonPanel, BorderLayout.NORTH);
-
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText().trim();
-                String costStr = costField.getText().trim();
-                
-                // Check if both fields are empty
-                if (name.isEmpty() && costStr.isEmpty()) {
-                    JOptionPane.showMessageDialog(MaterialsPanel.this, "Please enter Material Name and Cost.");
-                    return;
-                }
-                
-                // Check if either field is empty
-                if (name.isEmpty()) {
-                    JOptionPane.showMessageDialog(MaterialsPanel.this, "Please enter Material Name.");
-                    return;
-                }
-                
-                if (costStr.isEmpty()) {
-                    JOptionPane.showMessageDialog(MaterialsPanel.this, "Please enter Material Cost.");
-                    return;
-                }
-                
-                // Parse cost
-                double cost;
-                try {
-                    cost = Double.parseDouble(costStr);
-                    if (cost < 0 || cost > 12) {
-                        JOptionPane.showMessageDialog(MaterialsPanel.this, "Cost must be between 0 and 12.");
-                        return;
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(MaterialsPanel.this, "Invalid cost format.");
-                    return;
-                }
-                
-                // Add material to the list
-                materialListModel.addElement(new Material(name, cost));
-                nameField.setText("");
-                costField.setText("");
+                addMaterial();
             }
         });
-        
 
+        JButton deleteButton = new JButton("Delete Material");
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Material selectedMaterial = materialList.getSelectedValue();
-                if (selectedMaterial != null) {
-                    materialListModel.removeElement(selectedMaterial);
-                }
+                deleteMaterial();
             }
         });
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPanel.add(addButton);
+        buttonPanel.add(deleteButton);
+
+        add(inputPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public DefaultListModel<Material> getMaterialListModel() {
         return materialListModel;
+    }
+
+    public void setMaterialListModel(DefaultListModel<Material> materialListModel) {
+        this.materialListModel = materialListModel;
+        materialList.setModel(materialListModel);
+    }
+
+    private void addMaterial() {
+        String name = nameField.getText().trim();
+        String costStr = costField.getText().trim();
+
+        if (name.isEmpty() || costStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both Material Name and Cost.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        double cost;
+        try {
+            cost = Double.parseDouble(costStr);
+            if (cost < 0 || cost > 12) {
+                JOptionPane.showMessageDialog(this, "Cost must be between 0 and 12.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid cost format.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        Material material = new Material(name, cost);
+        materialListModel.addElement(material);
+        clearInputFields();
+    }
+
+    private void deleteMaterial() {
+        int selectedIndex = materialList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            materialListModel.remove(selectedIndex);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a material to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void clearInputFields() {
+        nameField.setText("");
+        costField.setText("");
     }
 }

@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import model.Project;
+import util.SerializationUtils;
 
 public class ProjectsPanel extends JPanel {
     private MainApp mainApp;
@@ -17,8 +18,13 @@ public class ProjectsPanel extends JPanel {
         this.mainApp = mainApp;
         setLayout(new BorderLayout());
 
+        // Initialize projectListModel
         projectListModel = new DefaultListModel<>();
         projectList = new JList<>(projectListModel);
+
+        // Load projects on startup
+        projectListModel = SerializationUtils.deserializeProjects("projects.ser");
+        projectList.setModel(projectListModel);
 
         // Input panel with vertical layout and padding
         JPanel inputPanel = new JPanel(new BorderLayout());
@@ -58,16 +64,19 @@ public class ProjectsPanel extends JPanel {
             @Override
             public void intervalAdded(ListDataEvent e) {
                 updateButtonStates();
+                serializeProjects();
             }
 
             @Override
             public void intervalRemoved(ListDataEvent e) {
                 updateButtonStates();
+                serializeProjects();
             }
 
             @Override
             public void contentsChanged(ListDataEvent e) {
                 updateButtonStates();
+                serializeProjects();
             }
         });
     }
@@ -76,16 +85,21 @@ public class ProjectsPanel extends JPanel {
         String name = projectNameField.getText().trim();
         if (name.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter the project name before adding a project.", "Hint", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            projectListModel.addElement(new Project(name));
-            projectNameField.setText("");
+            return;
         }
+        Project newProject = new Project(name);
+        projectListModel.addElement(newProject);
+        projectNameField.setText("");
+
+        // Save projects after adding
+        serializeProjects();
     }
 
     private void deleteProject() {
         int selectedIndex = projectList.getSelectedIndex();
         if (selectedIndex != -1) {
             projectListModel.remove(selectedIndex);
+            serializeProjects();
         }
     }
 
@@ -100,5 +114,9 @@ public class ProjectsPanel extends JPanel {
         boolean hasProjects = !projectListModel.isEmpty();
         deleteButton.setEnabled(hasProjects);
         selectButton.setEnabled(hasProjects);
+    }
+
+    private void serializeProjects() {
+        SerializationUtils.serializeProjects(projectListModel, "projects.ser");
     }
 }
